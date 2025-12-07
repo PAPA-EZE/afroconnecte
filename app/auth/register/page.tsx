@@ -2,6 +2,9 @@
 
 import type React from "react"
 
+"use client"
+
+import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -9,11 +12,13 @@ import { Heart, Mail, Lock, User, Eye, EyeOff, ChevronRight } from "lucide-react
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { register } from "@/lib/api"
 
 export default function RegisterPage() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,9 +28,15 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsLoading(false)
-    router.push("/onboarding/basics")
+    setError(null)
+    try {
+      await register(formData)
+      router.push("/auth/login")
+    } catch (err) {
+      setError("Une erreur est survenue lors de l'inscription")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -54,6 +65,7 @@ export default function RegisterPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && <p className="text-red-500 text-center">{error}</p>}
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Prénom</Label>

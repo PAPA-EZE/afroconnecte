@@ -1,9 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { MapPin, Calendar, Users, ChevronRight, Filter } from "lucide-react"
+"use client"
+
+import { useState, useEffect } from "react"
+import { MapPin, Calendar, Users, ChevronRight, Filter, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { BottomNavigation } from "@/components/navigation/bottom-navigation"
+import { getEvents, participateEvent, cancelParticipation } from "@/lib/api"
 
 interface Event {
   id: number
@@ -17,63 +20,65 @@ interface Event {
   category: string
 }
 
-const events: Event[] = [
-  {
-    id: 1,
-    title: "AfroBeats Night Paris",
-    description: "Une soirée dédiée aux meilleurs sons afrobeats avec DJ Spinall",
-    image: "/placeholder.svg?height=200&width=400",
-    date: "15 Déc 2025",
-    time: "22:00",
-    location: "Le Flow, Paris",
-    attendees: 234,
-    category: "Musique",
-  },
-  {
-    id: 2,
-    title: "Festival de la Gastronomie Africaine",
-    description: "Découvrez les saveurs de tout le continent avec nos chefs",
-    image: "/placeholder.svg?height=200&width=400",
-    date: "20 Déc 2025",
-    time: "12:00",
-    location: "Parc de la Villette, Paris",
-    attendees: 567,
-    category: "Cuisine",
-  },
-  {
-    id: 3,
-    title: "Networking Diaspora Tech",
-    description: "Rencontrez des professionnels tech de la diaspora africaine",
-    image: "/placeholder.svg?height=200&width=400",
-    date: "22 Déc 2025",
-    time: "19:00",
-    location: "Station F, Paris",
-    attendees: 89,
-    category: "Networking",
-  },
-  {
-    id: 4,
-    title: "Projection Film Africain",
-    description: "Découvrez le nouveau cinéma africain avec 'Atlantique'",
-    image: "/placeholder.svg?height=200&width=400",
-    date: "28 Déc 2025",
-    time: "20:00",
-    location: "MK2 Bibliothèque, Paris",
-    attendees: 156,
-    category: "Culture",
-  },
-]
-
 const categories = ["Tous", "Musique", "Cuisine", "Networking", "Culture", "Sport"]
 
 export default function EventsPage() {
+  const [events, setEvents] = useState<Event[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState("Tous")
   const [interestedEvents, setInterestedEvents] = useState<number[]>([])
 
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await getEvents()
+        setEvents(response.data)
+      } catch (err) {
+        setError("Impossible de charger les événements")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchEvents()
+  }, [])
+
   const filteredEvents = selectedCategory === "Tous" ? events : events.filter((e) => e.category === selectedCategory)
 
-  const toggleInterest = (eventId: number) => {
-    setInterestedEvents((prev) => (prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId]))
+  const toggleInterest = async (eventId: number) => {
+    const isInterested = interestedEvents.includes(eventId)
+    try {
+      if (isInterested) {
+        await cancelParticipation(eventId)
+        setInterestedEvents((prev) => prev.filter((id) => id !== eventId))
+      } else {
+        await participateEvent(eventId)
+        setInterestedEvents((prev) => [...prev, eventId])
+      }
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour de la participation:", err)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Heart className="w-12 h-12 text-primary animate-pulse" />
+          <p className="mt-2 text-muted-foreground">Chargement des événements...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center text-red-500">
+          <p>{error}</p>
+        </div>
+      </div>
+    )
   }
 
   return (

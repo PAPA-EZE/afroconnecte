@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import {
   Settings,
@@ -19,32 +21,46 @@ import {
 import { Button } from "@/components/ui/button"
 import { BottomNavigation } from "@/components/navigation/bottom-navigation"
 import { PremiumModal } from "@/components/premium/premium-modal"
+import { getProfile } from "@/lib/api"
+
+interface User {
+  name: string
+  age: number
+  location: string
+  origin: string
+  languages: string[]
+  profession: string
+  education: string
+  bio: string
+  photos: string[]
+  verified: boolean
+  stats: {
+    likes: number
+    matches: number
+    superLikes: number
+  }
+}
 
 export default function ProfilePage() {
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showPremium, setShowPremium] = useState(false)
   const [isPremium] = useState(false)
 
-  const user = {
-    name: "Mamadou",
-    age: 28,
-    location: "Paris, France",
-    origin: "Sénégal",
-    languages: ["Français", "Wolof", "Anglais"],
-    profession: "Développeur",
-    education: "Master Informatique",
-    bio: "Passionné de tech et de culture africaine. J'aime la musique afrobeats, le bon thiéboudienne et les discussions profondes.",
-    photos: [
-      "/placeholder.svg?height=400&width=300",
-      "/placeholder.svg?height=400&width=300",
-      "/placeholder.svg?height=400&width=300",
-    ],
-    verified: true,
-    stats: {
-      likes: 45,
-      matches: 12,
-      superLikes: 3,
-    },
-  }
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getProfile()
+        setUser(response.data)
+      } catch (err) {
+        setError("Impossible de charger le profil")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchProfile()
+  }, [])
 
   const menuItems = [
     { icon: Edit, label: "Modifier le profil", href: "/profile/edit" },
@@ -52,6 +68,27 @@ export default function ProfilePage() {
     { icon: Settings, label: "Paramètres", href: "/settings" },
     { icon: Heart, label: "Préférences de rencontre", href: "/settings/preferences" },
   ]
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Heart className="w-12 h-12 text-primary animate-pulse" />
+          <p className="mt-2 text-muted-foreground">Chargement du profil...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center text-red-500">
+          <p>{error || "Impossible de charger le profil"}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20">

@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, useRef } from "react"
+"use client"
+
+import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence, type PanInfo } from "framer-motion"
 import { Heart, X, Star, RotateCcw, MapPin, Globe, ChevronDown, Filter, Crown } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -8,6 +10,7 @@ import { BottomNavigation } from "@/components/navigation/bottom-navigation"
 import { ProfileCardDetails } from "@/components/discover/profile-card-details"
 import { FilterModal } from "@/components/discover/filter-modal"
 import { PremiumModal } from "@/components/premium/premium-modal"
+import { getDiscoveryProfiles, swipeProfile } from "@/lib/api"
 
 interface Profile {
   id: number
@@ -24,53 +27,10 @@ interface Profile {
   verified: boolean
 }
 
-const mockProfiles: Profile[] = [
-  {
-    id: 1,
-    name: "Aminata",
-    age: 27,
-    location: "Paris, France",
-    distance: "5 km",
-    origin: "Sénégal",
-    languages: ["Français", "Wolof", "Anglais"],
-    profession: "Ingénieure",
-    education: "Master en Informatique",
-    bio: "Passionnée de tech et de voyages. J'aime découvrir de nouvelles cultures tout en restant connectée à mes racines sénégalaises.",
-    photos: ["/african-woman-smiling-portrait-elegant.jpg", "/woman-travel-photo-paris.jpg", "/woman-professional-photo-office.jpg"],
-    verified: true,
-  },
-  {
-    id: 2,
-    name: "Kofi",
-    age: 30,
-    location: "Londres, UK",
-    distance: "8 km",
-    origin: "Ghana",
-    languages: ["Anglais", "Français", "Twi"],
-    profession: "Entrepreneur",
-    education: "MBA",
-    bio: "Fondateur d'une startup tech. Fan de jollof rice (le ghanéen est meilleur!). Toujours partant pour de nouvelles aventures.",
-    photos: ["/african-man-entrepreneur-professional.jpg", "/man-casual-photo-city.jpg", "/man-travel-adventure-photo.jpg"],
-    verified: true,
-  },
-  {
-    id: 3,
-    name: "Fatou",
-    age: 25,
-    location: "Bruxelles, Belgique",
-    distance: "3 km",
-    origin: "Mali",
-    languages: ["Français", "Bambara"],
-    profession: "Médecin",
-    education: "Doctorat en Médecine",
-    bio: "Future médecin, grande fan de musique mandingue et de cuisine africaine. Je cherche quelqu'un qui partage mes valeurs familiales.",
-    photos: ["/african-woman-doctor-professional-elegant.jpg", "/woman-casual-photo-outdoors.jpg"],
-    verified: false,
-  },
-]
-
 export default function DiscoverPage() {
-  const [profiles, setProfiles] = useState(mockProfiles)
+  const [profiles, setProfiles] = useState<Profile[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [expandedCard, setExpandedCard] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
@@ -79,19 +39,39 @@ export default function DiscoverPage() {
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null)
   const constraintsRef = useRef(null)
 
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      try {
+        const response = await getDiscoveryProfiles({})
+        setProfiles(response.data)
+      } catch (err) {
+        setError("Impossible de charger les profils")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchProfiles()
+  }, [])
+
   const currentProfile = profiles[currentIndex]
 
-  const handleSwipe = (direction: "left" | "right") => {
-    setSwipeDirection(direction)
-    setTimeout(() => {
-      if (currentIndex < profiles.length - 1) {
-        setCurrentIndex(currentIndex + 1)
-      } else {
-        setCurrentIndex(0)
-      }
-      setSwipeDirection(null)
-      setExpandedCard(false)
-    }, 300)
+  const handleSwipe = async (direction: "left" | "right") => {
+    if (!currentProfile) return
+    try {
+      await swipeProfile(currentProfile.id, { direction })
+      setSwipeDirection(direction)
+      setTimeout(() => {
+        if (currentIndex < profiles.length - 1) {
+          setCurrentIndex(currentIndex + 1)
+        } else {
+          setCurrentIndex(0) // Loop for now
+        }
+        setSwipeDirection(null)
+        setExpandedCard(false)
+      }, 300)
+    } catch (err) {
+      console.error("Erreur lors du swipe:", err)
+    }
   }
 
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -116,6 +96,27 @@ export default function DiscoverPage() {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1)
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Heart className="w-12 h-12 text-primary animate-pulse" />
+          <p className="mt-2 text-muted-foreground">Chargement des profils...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center text-red-500">
+          <p>{error}</p>
+        </div>
+      </div>
+    )
   }
 
   if (!currentProfile) {

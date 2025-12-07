@@ -1,7 +1,108 @@
-[00:00:01.300] Server  LOG      ✓ Ready in 881ms
-[00:00:07.937] Server  LOG      ○ Compiling /_not-found/page ...
-[00:00:09.429] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:10.707] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:11.335] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:18.318] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:26.759] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:27.621] Server  LOG      ○ Compiling /auth/login ...
+[00:01:30.119] Server  ERROR    ⨯ ./app/auth/login/page.tsx:5:1
+Ecmascript file had an error
+  3 | import type React from "react"
+  4 |
+> 5 | "use client"
+    | ^^^^^^^^^^^^
+  6 |
+  7 | import type React from "react"
+  8 | import { useState } from "react"
+
+The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+
+Import traces:
+  Client Component Browser:
+    ./app/auth/login/page.tsx [Client Component Browser]
+    ./app/auth/login/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/auth/login/page.tsx [Client Component SSR]
+    ./app/auth/login/page.tsx [Server Component]
+
+
+[00:01:32.942] Browser ERROR   uncaughtError: Error: ./app/auth/login/page.tsx:5:1
+Ecmascript file had an error
+  3 | import type React from "react"
+  4 |
+> 5 | "use client"
+    | ^^^^^^^^^^^^
+  6 |
+  7 | import type React from "react"
+  8 | import { useState } from "react"
+
+The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+
+Import traces:
+  Client Component Browser:
+    ./app/auth/login/page.tsx [Client Component Browser]
+    ./app/auth/login/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/auth/login/page.tsx [Client Component SSR]
+    ./app/auth/login/page.tsx [Server Component]
+
+
+[00:01:33.339] Browser ERROR   ./app/auth/login/page.tsx:5:1
+Ecmascript file had an error
+  3 | import type React from "react"
+  4 |
+> 5 | "use client"
+    | ^^^^^^^^^^^^
+  6 |
+  7 | import type React from "react"
+  8 | import { useState } from "react"
+
+The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+
+Import traces:
+  Client Component Browser:
+    ./app/auth/login/page.tsx [Client Component Browser]
+    ./app/auth/login/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/auth/login/page.tsx [Client Component SSR]
+    ./app/auth/login/page.tsx [Server Component]
+[00:01:33.339] Browser ERROR   ./app/auth/login/page.tsx:5:1
+Ecmascript file had an error
+  3 | import type React from "react"
+  4 |
+> 5 | "use client"
+    | ^^^^^^^^^^^^
+  6 |
+  7 | import type React from "react"
+  8 | import { useState } from "react"
+
+The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+
+Import traces:
+  Client Component Browser:
+    ./app/auth/login/page.tsx [Client Component Browser]
+    ./app/auth/login/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/auth/login/page.tsx [Client Component SSR]
+    ./app/auth/login/page.tsx [Server Component]
+[00:01:33.441] Browser ERROR   ./app/auth/login/page.tsx:5:1
+Ecmascript file had an error
+  3 | import type React from "react"
+  4 |
+> 5 | "use client"
+    | ^^^^^^^^^^^^
+  6 |
+  7 | import type React from "react"
+  8 | import { useState } from "react"
+
+The "use client" directive must be placed before other expressions. Move it to the top of the file to resolve this issue.
+
+Import traces:
+  Client Component Browser:
+    ./app/auth/login/page.tsx [Client Component Browser]
+    ./app/auth/login/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/auth/login/page.tsx [Client Component SSR]
+    ./app/auth/login/page.tsx [Server Component]
+[00:07:52.786] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:10:22.824] Server  LOG      ✓ Compiled in 127ms
+[00:15:55.994] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
