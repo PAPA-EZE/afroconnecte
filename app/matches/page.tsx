@@ -1,11 +1,14 @@
 "use client"
 
-import { useState } from "react"
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Search, Crown, Heart, MessageCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { BottomNavigation } from "@/components/navigation/bottom-navigation"
 import { PremiumModal } from "@/components/premium/premium-modal"
+import { getMatches } from "@/lib/api"
 
 interface Match {
   id: number
@@ -17,42 +20,6 @@ interface Match {
   online?: boolean
 }
 
-const newMatches: Match[] = [
-  { id: 1, name: "Aminata", photo: "/african-woman-portrait.png", online: true },
-  { id: 2, name: "Kofi", photo: "/african-man-portrait.png", online: false },
-  { id: 3, name: "Fatou", photo: "/african-woman-elegant.jpg", online: true },
-]
-
-const conversations: Match[] = [
-  {
-    id: 4,
-    name: "Aisha",
-    photo: "/african-woman-smiling.jpg",
-    lastMessage: "Super, on se voit samedi alors !",
-    timestamp: "14:32",
-    unread: true,
-    online: true,
-  },
-  {
-    id: 5,
-    name: "Moussa",
-    photo: "/african-man-casual.jpg",
-    lastMessage: "Tu connais le festival AfroBeats ce weekend ?",
-    timestamp: "Hier",
-    unread: false,
-    online: false,
-  },
-  {
-    id: 6,
-    name: "Diane",
-    photo: "/african-woman-professional.jpg",
-    lastMessage: "Le thieboudienne de ma mère est le meilleur !",
-    timestamp: "Lun",
-    unread: false,
-    online: false,
-  },
-]
-
 const likesPreview = [
   { id: 1, photo: "/blurred-portrait-1.jpg" },
   { id: 2, photo: "/blurred-portrait-2.jpg" },
@@ -60,9 +27,50 @@ const likesPreview = [
 ]
 
 export default function MatchesPage() {
+  const [matches, setMatches] = useState<Match[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [showPremium, setShowPremium] = useState(false)
   const [isPremium] = useState(false)
+
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const response = await getMatches()
+        setMatches(response.data)
+      } catch (err) {
+        setError("Impossible de charger les matchs")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchMatches()
+  }, [])
+
+  const newMatches = matches.filter((m) => !m.lastMessage)
+  const conversations = matches.filter((m) => m.lastMessage)
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Heart className="w-12 h-12 text-primary animate-pulse" />
+          <p className="mt-2 text-muted-foreground">Chargement des matchs...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center text-red-500">
+          <p>{error}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20">
